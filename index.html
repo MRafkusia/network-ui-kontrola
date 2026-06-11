@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kontrola · Infrastructure</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<template id="__bundler_thumbnail" data-bg-color="#f3f0ef">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect x="180" y="150" width="840" height="120" rx="20" fill="#ffffff"/>
+    <rect x="220" y="195" width="180" height="30" rx="8" fill="#E25716"/>
+    <rect x="180" y="300" width="260" height="200" rx="20" fill="#ffffff"/>
+    <rect x="470" y="300" width="260" height="200" rx="20" fill="#ffffff"/>
+    <rect x="760" y="300" width="260" height="200" rx="20" fill="#E25716"/>
+    <rect x="180" y="530" width="840" height="120" rx="20" fill="#ffffff"/>
+    <rect x="220" y="575" width="500" height="14" rx="7" fill="#E25716" opacity="0.5"/>
+    <rect x="220" y="605" width="360" height="14" rx="7" fill="#241F20" opacity="0.18"/>
+  </svg>
+</template>
+<body style="font-family: Helvetica">
+  <div class="wrap">
+
+    <!-- ===================== TOP BAR ===================== -->
+    <header class="topbar">
+      <div class="navrow">
+        <div class="logo">
+          <img src="assets/kontrola-logo.png" alt="kontrola" class="logo-img">
+        </div>
+
+        <nav class="nav">
+          <a href="#" data-page="overview">Overview</a>
+          <a href="#" data-page="infrastructure">Infrastructure</a>
+          <a href="#" data-page="storage">Storage</a>
+          <a href="#" class="active" data-page="network">Network</a>
+          <a href="#" data-page="applications">Applications</a>
+          <a href="#" data-page="licenses">Licenses</a>
+        </nav>
+
+        <div class="nav-actions">
+          <button class="icon-btn" title="Notifications" aria-label="Notifications">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          </button>
+          <button class="icon-btn" id="theme-toggle" title="Toggle theme" aria-label="Toggle theme">
+            <svg id="theme-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          </button>
+          <div class="user-pill">
+            <span class="avatar">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+            </span>
+            <span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="cbbeb8aeb98bbfb9a2b8bfaea0e5a2af">[email&#160;protected]</a></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="metarow">
+        <div class="org-pill">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v16M19 21V9a1 1 0 0 0-1-1h-3"/><path d="M8 7h2M8 11h2M8 15h2"/></svg>
+          tristek
+        </div>
+        <button class="date-pill">
+          Jun 11, 11:25 – Jun 11, 23:25
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ===================== SUMMARY CARDS ===================== -->
+    <section class="stats" id="stats"></section>
+
+    <!-- ===================== NETWORK METRICS ===================== -->
+    <div class="section-head">
+      <div>
+        <h2>Network Health Overview</h2>
+        <span>Live metrics across all monitored devices</span>
+      </div>
+      <div class="seg" id="range-seg" role="tablist" aria-label="Time range">
+        <button class="seg-btn" data-range="hourly">Hourly</button>
+        <button class="seg-btn" data-range="weekly">Weekly</button>
+        <button class="seg-btn" data-range="monthly">Monthly</button>
+      </div>
+    </div>
+    <section class="charts" id="charts"></section>
+
+    <!-- ===================== INFRASTRUCTURE TABLE ===================== -->
+    <section class="card tablecard">
+      <div class="tablehead">
+        <div>
+          <h2>Infrastructure</h2>
+          <p>List all infrastructure you monitor</p>
+        </div>
+        <div class="tools">
+          <label class="show-ctl">Show
+            <select class="sel" id="perpage">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </select>
+          </label>
+          <div class="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="search" placeholder="Search infrastructure…" autocomplete="off">
+          </div>
+          <button class="btn-csv" id="btn-csv">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            Download CSV
+          </button>
+        </div>
+      </div>
+
+      <div class="table-scroll">
+        <table>
+          <thead id="thead"></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="pager">
+        <span class="info" id="pager-info"></span>
+        <div class="pages" id="pager-pages"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="chart-tip" id="chart-tip"></div>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="data.js"></script>
+  <script src="common.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+
+<style id="__om-edit-overrides">
+#stats >div:nth-child(1) >.top { font-family: "Times New Roman" !important }
+#stats >div:nth-child(1) >.top { font-family: Helvetica !important }
+#thead .sorted { border-color: rgba(36, 31, 32, 0.07) !important }
+#thead .sorted { background-color: rgb(226, 87, 22) !important }
+#thead [data-key="type"] { color: rgb(255, 255, 255) !important }
+#thead [data-key="type"] { background-color: rgb(226, 87, 22) !important }
+#thead .sorted >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) polyline { stroke: rgb(255, 255, 255) !important }
+#thead [data-key="location"] { background-color: rgb(226, 87, 22) !important }
+#thead [data-key="location"] polyline { stroke: rgb(255, 255, 255) !important }
+#thead [data-key="uptimeSec"] >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) { color: rgb(255, 255, 255) !important }
+#thead [data-key="uptimeSec"] { background-color: rgb(226, 87, 22) !important }
+#thead [data-key="rx"] { background-color: rgb(226, 87, 22) !important }
+#thead [data-key="rx"] polyline { stroke: rgb(255, 255, 255) !important }
+#thead [data-key="tx"] { background-color: rgb(226, 87, 22) !important }
+#thead [data-key="tx"] polyline { stroke: rgb(255, 255, 255) !important }
+#thead [data-key="oper"] >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) { color: rgb(255, 255, 255) !important }
+#thead [data-key="oper"] { background-color: rgb(226, 87, 22) !important }
+#thead [data-key="location"] >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) { color: rgb(255, 255, 255) !important }
+#thead [data-key="rx"] >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) { color: rgb(255, 255, 255) !important }
+#thead [data-key="tx"] >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) { color: rgb(255, 255, 255) !important }
+#thead [data-key="location"] >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) { color: rgb(255, 255, 255) !important }
+#thead [data-key="rx"] >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) { color: rgb(255, 255, 255) !important }
+#thead [data-key="tx"] >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) { color: rgb(255, 255, 255) !important }
+#thead .sorted >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) { color: rgb(255, 255, 255) !important }
+#thead [data-key="name"] { color: rgb(255, 255, 255) !important }
+#thead [data-key="name"] { background-color: rgb(226, 87, 22) !important }
+#thead [data-key="ports"] { background-color: rgb(226, 87, 22) !important }
+#thead [data-key="ports"] >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) { color: rgb(255, 255, 255) !important }
+#thead [data-key="ports"] polyline { stroke: rgb(255, 255, 255) !important }
+</style>
