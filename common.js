@@ -82,6 +82,42 @@
     return 'var(--warn)';
   }
 
+  /* ---------- port role flagging (uplink / downlink / unset) ----------
+     STATUS (up/down/testing) is operational, comes from the device, read-only.
+     FLAG is a user annotation of each port's ROLE. The two are orthogonal.
+     Flags persist in localStorage; a stored value (incl. 'unset') overrides the seed. */
+  const FLAG_KEY = 'kontrola-port-flags';
+  function loadFlags() { try { return JSON.parse(localStorage.getItem(FLAG_KEY) || '{}'); } catch (e) { return {}; } }
+  function saveFlags(o) { try { localStorage.setItem(FLAG_KEY, JSON.stringify(o)); } catch (e) {} }
+  const flagKeyOf = (devName, ifName) => devName + '\u241F' + ifName;
+  function getFlag(devName, ifc) {
+    const o = loadFlags(); const k = flagKeyOf(devName, ifc.name);
+    return Object.prototype.hasOwnProperty.call(o, k) ? o[k] : (ifc.flag || 'unset');
+  }
+  function setFlag(devName, ifName, val) {
+    const o = loadFlags(); o[flagKeyOf(devName, ifName)] = val; saveFlags(o);
+  }
+  // Aggregate the traffic/up-count of a device's ports that carry a given role.
+  // Returns null when the device has no ports flagged with that role (→ excluded from the lens).
+  function aggregateByFlag(d, role) {
+    if (!d || !d.interfaces) return null;
+    const ports = d.interfaces.filter(it => getFlag(d.name, it) === role);
+    if (!ports.length) return null;
+    let up = 0, octIn = 0, octOut = 0;
+    ports.forEach(p => { if (p.operUp) { up++; octIn += p.octIn || 0; octOut += p.octOut || 0; } });
+    return { total: ports.length, up, octIn, octOut, ports };
+  }
+  function flagCounts(d) {
+    const c = { uplink: { up: 0, total: 0 }, downlink: { up: 0, total: 0 }, unset: 0 };
+    if (!d || !d.interfaces) return c;
+    d.interfaces.forEach(it => {
+      const f = getFlag(d.name, it);
+      if (f === 'uplink' || f === 'downlink') { c[f].total++; if (it.operUp) c[f].up++; }
+      else c.unset++;
+    });
+    return c;
+  }
+
   /* ===================== TIME RANGES ===================== */
   const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -212,6 +248,7 @@
     has, NA, esc, orNA, fmtOr, noData, infoDot,
     fmtBytes, fmtBps, fmtUptime, fmtCompact,
     stateBadge, statusDotColor,
+    getFlag, setFlag, aggregateByFlag, flagCounts,
     RANGES, getRange, setRangeVal, timeAt, genTrend, drawChart,
   };
 })();

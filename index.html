@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kontrola · Network</title>
+  <title>Kontrola · Infrastructure</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;500;600;700&display=swap" rel="stylesheet">
-      <link rel="stylesheet" href="styles.css">
-    <script defer src="https://umami.otoscale.com/script.js" data-website-id="95e2f393-0b37-472a-83e9-d704c76822f0"></script>
+  <link rel="stylesheet" href="styles.css?v=32">
+  <script defer src="https://umami.otoscale.com/script.js" data-website-id="95e2f393-0b37-472a-83e9-d704c76822f0"></script>
 </head>
 <template id="__bundler_thumbnail" data-bg-color="#f3f0ef">
   <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
@@ -52,7 +52,7 @@
             <span class="avatar">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
             </span>
-            <span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="cbbeb8aeb98bbfb9a2b8bfaea0e5a2af">[email&#160;protected]</a></span>
+            <span>user@tristek.id</span>
           </div>
         </div>
       </div>
@@ -68,6 +68,18 @@
         </button>
       </div>
     </header>
+
+    <!-- ===================== PAGE SCOPE (uplink / downlink lens) ===================== -->
+    <div class="scope-bar">
+      <div class="scope-left">
+        <span class="scope-lbl">Aggregation lens</span>
+        <div class="seg seg-lens" id="lens-seg" role="tablist" aria-label="Aggregation lens">
+          <button class="seg-btn active" data-lens="uplink" title="Aggregate uplink ports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>Uplink</button>
+          <button class="seg-btn" data-lens="downlink" title="Aggregate downlink ports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>Downlink</button>
+        </div>
+      </div>
+      <span class="scope-note" id="scope-note"></span>
+    </div>
 
     <!-- ===================== SUMMARY CARDS ===================== -->
     <section class="stats" id="stats"></section>
@@ -90,25 +102,52 @@
     <section class="card tablecard">
       <div class="tablehead">
         <div>
-          <h2>Infrastructure</h2>
-          <p>List all infrastructure you monitor</p>
+          <h2>Device</h2>
+          <p id="table-sub">Devices in scope</p>
+          <span id="active-filter" class="active-filter" hidden></span>
         </div>
         <div class="tools">
-          <label class="show-ctl">Show
-            <select class="sel" id="perpage">
-              <option value="10">10</option>
-              <option value="25">25</option>
-              <option value="50">50</option>
-            </select>
-          </label>
-          <div class="search">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-            <input type="text" id="search" placeholder="Search infrastructure…" autocomplete="off">
+          <div class="tools-left">
+            <div class="vendor-filter">
+              <button class="vf-btn" id="vendor-btn" type="button" aria-label="Filter by vendor">Vendor</button>
+              <div class="vf-pop" id="vendor-pop"></div>
+            </div>
+            <label class="show-ctl">Show
+              <select class="sel" id="perpage">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+              </select>
+            </label>
+            <div class="search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+              <input type="text" id="search" placeholder="Search device…" autocomplete="off">
+            </div>
           </div>
-          <button class="btn-csv" id="btn-csv">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-            Download CSV
-          </button>
+          <div class="tools-right">
+            <div class="seg seg-status" id="status-seg" role="tablist" aria-label="Filter by status">
+              <button class="seg-btn active" data-status="all">All</button>
+              <button class="seg-btn" data-status="up"><span class="sdot" style="background:var(--good)"></span>Up</button>
+              <button class="seg-btn" data-status="down"><span class="sdot" style="background:var(--bad)"></span>Down</button>
+            </div>
+            <div class="export-menu">
+              <button class="btn-csv" id="export-btn" type="button" aria-label="Export">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+                Export
+                <svg class="ex-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="export-pop" id="export-pop">
+                <button type="button" data-export="csv">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                  <span><b>CSV</b>Spreadsheet data</span>
+                </button>
+                <button type="button" data-export="pdf">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>
+                  <span><b>PDF</b>Printable report</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -129,40 +168,9 @@
 
   <div class="chart-tip" id="chart-tip"></div>
 
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="data.js"></script>
-  <script src="common.js"></script>
-  <script src="app.js"></script>
+  <script src="data.js?v=14"></script>
+  <script src="common.js?v=11"></script>
+  <script src="app.js?v=24"></script>
 </body>
 </html>
 
-<style id="__om-edit-overrides">
-#stats >div:nth-child(1) >.top { font-family: "Times New Roman" !important }
-#stats >div:nth-child(1) >.top { font-family: Helvetica !important }
-#thead .sorted { border-color: rgba(36, 31, 32, 0.07) !important }
-#thead .sorted { background-color: rgb(226, 87, 22) !important }
-#thead [data-key="type"] { color: rgb(255, 255, 255) !important }
-#thead [data-key="type"] { background-color: rgb(226, 87, 22) !important }
-#thead .sorted >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) polyline { stroke: rgb(255, 255, 255) !important }
-#thead [data-key="location"] { background-color: rgb(226, 87, 22) !important }
-#thead [data-key="location"] polyline { stroke: rgb(255, 255, 255) !important }
-#thead [data-key="uptimeSec"] >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) { color: rgb(255, 255, 255) !important }
-#thead [data-key="uptimeSec"] { background-color: rgb(226, 87, 22) !important }
-#thead [data-key="rx"] { background-color: rgb(226, 87, 22) !important }
-#thead [data-key="rx"] polyline { stroke: rgb(255, 255, 255) !important }
-#thead [data-key="tx"] { background-color: rgb(226, 87, 22) !important }
-#thead [data-key="tx"] polyline { stroke: rgb(255, 255, 255) !important }
-#thead [data-key="oper"] >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) { color: rgb(255, 255, 255) !important }
-#thead [data-key="oper"] { background-color: rgb(226, 87, 22) !important }
-#thead [data-key="location"] >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) { color: rgb(255, 255, 255) !important }
-#thead [data-key="rx"] >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) { color: rgb(255, 255, 255) !important }
-#thead [data-key="tx"] >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) { color: rgb(255, 255, 255) !important }
-#thead [data-key="location"] >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) { color: rgb(255, 255, 255) !important }
-#thead [data-key="rx"] >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) { color: rgb(255, 255, 255) !important }
-#thead [data-key="tx"] >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) { color: rgb(255, 255, 255) !important }
-#thead .sorted >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) { color: rgb(255, 255, 255) !important }
-#thead [data-key="name"] { color: rgb(255, 255, 255) !important }
-#thead [data-key="name"] { background-color: rgb(226, 87, 22) !important }
-#thead [data-key="ports"] { background-color: rgb(226, 87, 22) !important }
-#thead [data-key="ports"] >:is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,span,a,em,strong,small,td,th,caption) { color: rgb(255, 255, 255) !important }
-#thead [data-key="ports"] polyline { stroke: rgb(255, 255, 255) !important }
-</style>

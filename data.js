@@ -61,6 +61,33 @@ DEVICES.forEach(d => {
     ? ((d.tx + d.rx) / d.bandwidth > 0.4 ? 55 : 20 + ((d.cpu || 0) / 3))
     : 20;
   d.spark = genSeries(Math.min(utilBase, 70), 14, 24);
+
+  // stable management IP — subnet keyed on site, host octets seeded on MAC/name
+  const loc = (d.location || '').toLowerCase();
+  let net = 10;
+  if (loc.includes('vcluster')) net = 50;
+  else if (loc.includes('surabaya')) net = 20;
+  else if (loc.includes('bekasi')) net = 40;
+  else if (loc.startsWith('hq')) net = 30;
+  const h = (d.mac || d.name || '').split('').reduce((a, c) => ((a * 31 + c.charCodeAt(0)) >>> 0), 7);
+  const sub = (h % 24) + 1;
+  const host = ((h >>> 4) % 250) + 2;
+  d.ip = '10.' + net + '.' + sub + '.' + host;
+
+  // vendor — detected from the type string (the OS/model first token isn't always the brand)
+  const t = (d.type || '').toLowerCase();
+  const rules = [
+    [/mikrotik|routeros|ccr\d/, 'MikroTik'], [/cisco|catalyst/, 'Cisco'],
+    [/fortinet|fortigate/, 'Fortinet'], [/juniper|\bmx\d/, 'Juniper'],
+    [/aruba/, 'Aruba'], [/ubiquiti|unifi/, 'Ubiquiti'], [/f5|big-ip/, 'F5'],
+    [/palo alto|\bpa-\d/, 'Palo Alto'], [/pfsense|netgate/, 'Netgate'],
+    [/\bhpe?\b|proliant/, 'HPE'], [/dell|poweredge/, 'Dell'],
+    [/synology/, 'Synology'], [/supermicro/, 'Supermicro'], [/netapp/, 'NetApp'],
+    [/hikvision/, 'Hikvision'], [/advantech/, 'Advantech'],
+    [/vm\b|ubuntu|rhel|debian|centos/, 'Virtual'],
+  ];
+  const hit = rules.find(r => r[0].test(t));
+  d.vendor = hit ? hit[1] : (d.type || '').split(/[ ·]/)[0] || 'Other';
 });
 
 /* ===========================================================
@@ -145,12 +172,18 @@ DEVICES.forEach(d => {
       errIn = rnd.chance(0.32) ? rnd.range(1, 4800) : 0;
       errOut = rnd.chance(0.14) ? rnd.range(1, 180) : 0;
     }
+    const desc = descFor(i, total);
     ifs.push({
       index: i + 1,
       name: namer(i),
-      desc: descFor(i, total),
+      desc,
       state, adminUp, operUp,
       octIn, octOut, errIn, errOut,
+      // seed role flag from the port's purpose; user can override (persisted in localStorage)
+      flag: /^uplink/i.test(desc) ? 'uplink'
+          : /^trunk/i.test(desc) ? 'uplink'
+          : /^access/i.test(desc) ? 'downlink'
+          : 'unset',
     });
   }
   // guarantee a live uplink when the device itself is up
@@ -162,6 +195,32 @@ DEVICES.forEach(d => {
   d.interfaces = ifs;
   d.portsTotal = ifs.length;
   d.portsUp = ifs.filter(x => x.operUp).length;
+});
+
+// Inject real uplink failures so the Uplink lens shows down / degraded links:
+//  'all' = every uplink port down  → device is critically DOWN (oper 2)
+//  'one' = a single uplink down     → device stays UP but uplink is DEGRADED (e.g. 1/2)
+const UPLINK_FAULT = {
+  'Web-LB-01': 'all', 'Dist-SW-04': 'all', 'Mail-Node-02': 'all',
+  'Edge-RT-02': 'one', 'Core-SW-01': 'one',
+};
+DEVICES.forEach(d => {
+  const mode = UPLINK_FAULT[d.name];
+  if (!mode || !d.interfaces) return;
+  const ups = d.interfaces.filter(it => it.flag === 'uplink');
+  if (!ups.length) return;
+  const toDown = mode === 'all' ? ups : ups.slice(0, 1);
+  toDown.forEach(p => { p.adminUp = true; p.operUp = false; p.state = 'down'; p.octIn = 0; p.octOut = 0; p.errIn = 0; p.errOut = 0; });
+  if (mode === 'all') {
+    d.oper = 2;   // uplink lost → device unreachable from the core
+  } else {
+    // degraded: one uplink down, but keep the rest UP so the device stays reachable
+    ups.slice(1).forEach(p => {
+      p.adminUp = true; p.operUp = true; p.state = 'up';
+      if (!p.octIn) { p.octIn = Math.round(Math.pow(10, 7 + Math.random())); p.octOut = Math.round(p.octIn * 0.6); }
+    });
+  }
+  d.portsUp = d.interfaces.filter(x => x.operUp).length;
 });
 
 window.KONTROLA = { DEVICES, TOOLS, IFTYPE, STATE, genSeries };

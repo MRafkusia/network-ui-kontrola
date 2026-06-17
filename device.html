@@ -7,8 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;500;600;700&display=swap" rel="stylesheet">
-      <link rel="stylesheet" href="styles.css">
-    <script defer src="https://umami.otoscale.com/script.js" data-website-id="95e2f393-0b37-472a-83e9-d704c76822f0"></script>
+  <link rel="stylesheet" href="styles.css?v=32">
+  <script defer src="https://umami.otoscale.com/script.js" data-website-id="95e2f393-0b37-472a-83e9-d704c76822f0"></script>
 </head>
 <body>
   <div class="wrap">
@@ -16,17 +16,17 @@
     <!-- ===================== TOP BAR ===================== -->
     <header class="topbar">
       <div class="navrow">
-        <a class="logo" href="Infrastructure.html" title="Back to Infrastructure">
+        <a class="logo" href="index.html" title="Back to Infrastructure">
           <img src="assets/kontrola-logo.png" alt="kontrola" class="logo-img">
         </a>
 
         <nav class="nav">
-          <a href="Infrastructure.html" data-page="overview">Overview</a>
-          <a href="Infrastructure.html" data-page="infrastructure">Infrastructure</a>
-          <a href="Infrastructure.html" data-page="storage">Storage</a>
-          <a href="Infrastructure.html" class="active" data-page="network">Network</a>
-          <a href="Infrastructure.html" data-page="applications">Applications</a>
-          <a href="Infrastructure.html" data-page="licenses">Licenses</a>
+          <a href="index.html" data-page="overview">Overview</a>
+          <a href="index.html" data-page="infrastructure">Infrastructure</a>
+          <a href="index.html" data-page="storage">Storage</a>
+          <a href="index.html" class="active" data-page="network">Network</a>
+          <a href="index.html" data-page="applications">Applications</a>
+          <a href="index.html" data-page="licenses">Licenses</a>
         </nav>
 
         <div class="nav-actions">
@@ -40,7 +40,7 @@
             <span class="avatar">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
             </span>
-            <span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4035332532003432293334252b6e2924">[email&#160;protected]</a></span>
+            <span>user@tristek.id</span>
           </div>
         </div>
       </div>
@@ -67,9 +67,32 @@
           <p id="if-count">Interfaces on this device</p>
         </div>
         <div class="tools">
+          <span class="sync-pill" id="if-sync" title="Last successful SNMP poll"></span>
+          <div class="seg seg-status" id="if-status-seg" role="tablist" aria-label="Filter by status">
+            <button class="seg-btn active" data-status="all">All</button>
+            <button class="seg-btn" data-status="up"><span class="sdot" style="background:var(--good)"></span>Up</button>
+            <button class="seg-btn" data-status="down"><span class="sdot" style="background:var(--bad)"></span>Down</button>
+          </div>
           <div class="search">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
             <input type="text" id="if-search" placeholder="Search interfaces…" autocomplete="off">
+          </div>
+          <div class="export-menu">
+            <button class="btn-csv" id="dev-export-btn" type="button" aria-label="Export">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              Export
+              <svg class="ex-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="export-pop" id="dev-export-pop">
+              <button type="button" data-export="csv">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                <span><b>CSV</b>Interface data</span>
+              </button>
+              <button type="button" data-export="pdf">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>
+                <span><b>PDF</b>Device report</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -81,30 +104,66 @@
       </div>
     </section>
 
-    <!-- ===================== TRAFFIC ===================== -->
-    <section class="card chartcard" id="traffic-card">
-      <div class="mt-head">
+    <!-- ===================== GRAPH DETAILS (device-wide, all ports) ===================== -->
+    <section class="gd-section">
+      <div class="gd-head">
         <div>
-          <h2 class="tr-h2">Traffic<span class="metric-info" tabindex="0" role="button" aria-label="About Traffic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.7" r="1.05" fill="currentColor" stroke="none"/></svg><span class="metric-info-pop" role="tooltip"><b>Traffic</b><span class="mi-what">Inbound (RX) and outbound (TX) throughput on this device's primary interface.</span><span class="mi-how"><b>How it's measured</b>Polled from SNMP <i>ifHCInOctets</i> / <i>ifHCOutOctets</i> every 60s; counter deltas are converted to bits per second over the selected range.</span></span></span></h2>
-          <p class="tr-sub" id="m-range-lbl"></p>
+          <h2>Graph details</h2>
+          <p class="gd-sub" id="gd-range-lbl"></p>
         </div>
-        <div class="tr-right">
-          <div class="mt-now">
-            <span class="rx"><b id="mt-rx-now">—</b><em>RX now</em></span>
-            <span class="tx"><b id="mt-tx-now">—</b><em>TX now</em></span>
-          </div>
-          <div class="seg" id="range-seg" role="tablist" aria-label="Time range">
-            <button class="seg-btn" data-range="hourly">Hourly</button>
-            <button class="seg-btn" data-range="weekly">Weekly</button>
-            <button class="seg-btn" data-range="monthly">Monthly</button>
-          </div>
+        <div class="seg" id="range-seg" role="tablist" aria-label="Time range">
+          <button class="seg-btn" data-range="hourly">Hourly</button>
+          <button class="seg-btn" data-range="weekly">Weekly</button>
+          <button class="seg-btn" data-range="monthly">Monthly</button>
         </div>
       </div>
-      <div class="mt-legend" style="margin:2px 0 12px">
-        <i><b style="background:var(--orange)"></b>RX (in)</i>
-        <i><b style="background:#2d6fd6"></b>TX (out)</i>
+
+      <div class="card chartcard">
+        <div class="chd">
+          <div><h3>Throughput<span class="metric-info" tabindex="0" role="button" aria-label="About Throughput"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.7" r="1.05" fill="currentColor" stroke="none"/></svg><span class="metric-info-pop" role="tooltip"><b>Throughput</b><span class="mi-what">Combined inbound (RX) and outbound (TX) traffic summed across <b>every interface</b> on this device.</span><span class="mi-how"><b>How it's measured</b>Per-port <i>ifHCInOctets</i> / <i>ifHCOutOctets</i> counters, rated to bits per second and summed over the selected range.</span></span></span></h3><p class="chsub">Total RX / TX across all ports</p></div>
+          <div class="gd-now"><span class="rx"><b id="now-thr-rx">—</b><em>RX</em></span><span class="tx"><b id="now-thr-tx">—</b><em>TX</em></span></div>
+        </div>
+        <div class="legend"><i><b style="background:var(--orange)"></b>RX (in)</i><i><b style="background:#2d6fd6"></b>TX (out)</i></div>
+        <div id="chart-thr"></div>
       </div>
-      <div id="m-traffic"></div>
+
+      <div class="card chartcard">
+        <div class="chd">
+          <div><h3>Total Packets (PPS)<span class="metric-info" tabindex="0" role="button" aria-label="About Total Packets"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.7" r="1.05" fill="currentColor" stroke="none"/></svg><span class="metric-info-pop" role="tooltip"><b>Total Packets (PPS)</b><span class="mi-what">Frames per second across all interfaces — <b>unicast + multicast + broadcast</b>, inbound and outbound.</span><span class="mi-how"><b>How it's measured</b>Derived from per-interface unicast / multicast / broadcast packet counters, summed per polling interval.</span></span></span></h3><p class="chsub">Unicast + multicast + broadcast, all ports</p></div>
+          <div class="gd-now"><span class="rx"><b id="now-pps-in">—</b><em>In</em></span><span class="tx"><b id="now-pps-out">—</b><em>Out</em></span></div>
+        </div>
+        <div class="legend"><i><b style="background:var(--orange)"></b>In</i><i><b style="background:#2d6fd6"></b>Out</i></div>
+        <div id="chart-pps"></div>
+      </div>
+
+      <div class="card chartcard">
+        <div class="chd">
+          <div><h3>Interface Health<span class="metric-info" tabindex="0" role="button" aria-label="About Interface Health"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.7" r="1.05" fill="currentColor" stroke="none"/></svg><span class="metric-info-pop" role="tooltip"><b>Interface Health</b><span class="mi-what">Total interface <b>errors and discards</b> across all ports — a leading indicator of cabling, SFP or congestion problems before a link drops.</span><span class="mi-how"><b>How it's measured</b>Summed from <i>ifInErrors</i>/<i>ifOutErrors</i> and <i>ifInDiscards</i>/<i>ifOutDiscards</i> per interval.</span></span></span></h3><p class="chsub">Errors &amp; discards, all ports</p></div>
+          <div class="gd-now"><span class="err"><b id="now-err">—</b><em>Errors</em></span><span class="dsc"><b id="now-dsc">—</b><em>Discards</em></span></div>
+        </div>
+        <div class="legend"><i><b style="background:var(--bad)"></b>Errors</i><i><b style="background:var(--gray)"></b>Discards</i></div>
+        <div id="chart-health"></div>
+      </div>
+    </section>
+
+    <!-- ===================== LATENCY & RELIABILITY (per-device ICMP) ===================== -->
+    <section class="charts dev-health">
+      <div class="card chartcard">
+        <div class="chd">
+          <div><h3>Round-Trip Time<span class="metric-info" tabindex="0" role="button" aria-label="About Round-Trip Time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.7" r="1.05" fill="currentColor" stroke="none"/></svg><span class="metric-info-pop" role="tooltip"><b>Round-Trip Time</b><span class="mi-what">Round-trip latency of ICMP echo probes from the Kontrola poller to <b>this device</b>.</span><span class="mi-how"><b>How it's measured</b>Periodic ping; round-trip times are averaged per interval over the selected range.</span></span></span></h3><p class="chsub">ICMP latency to this device</p></div>
+          <div class="now"><b id="now-rtt">—</b><span>now</span></div>
+        </div>
+        <div class="legend"><i><b style="background:var(--orange)"></b>RTT</i></div>
+        <div id="chart-rtt"></div>
+      </div>
+      <div class="card chartcard">
+        <div class="chd">
+          <div><h3>Packet Loss<span class="metric-info" tabindex="0" role="button" aria-label="About Packet Loss"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.7" r="1.05" fill="currentColor" stroke="none"/></svg><span class="metric-info-pop" role="tooltip"><b>Packet Loss</b><span class="mi-what">Share of ICMP probe packets that did <b>not return</b> — a proxy for link reliability.</span><span class="mi-how"><b>How it's measured</b>Lost replies ÷ probes sent per interval, from the same ping batches as latency.</span></span></span></h3><p class="chsub">Dropped ICMP probes</p></div>
+          <div class="now"><b id="now-loss">—</b><span>now</span></div>
+        </div>
+        <div class="legend"><i><b style="background:var(--orange)"></b>Loss</i></div>
+        <div id="chart-loss"></div>
+      </div>
     </section>
 
     <!-- ===================== SNMP INFO ===================== -->
@@ -116,8 +175,8 @@
 
   <div class="chart-tip" id="chart-tip"></div>
 
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="data.js"></script>
-  <script src="common.js"></script>
-  <script src="device.js"></script>
+  <script src="data.js?v=14"></script>
+  <script src="common.js?v=11"></script>
+  <script src="device.js?v=18"></script>
 </body>
 </html>
