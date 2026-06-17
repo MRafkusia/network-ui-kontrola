@@ -777,3 +777,29 @@ td.cell-type { max-width: 168px; overflow: hidden; text-overflow: ellipsis; }
   .nav { display: none; }
   .search input { width: 160px; }
 }
+
+/* Chart headers: stack title over the live values so big numbers never clip on narrow screens */
+@media (max-width: 760px) {
+  /* hero chips wrap into a 2×2 grid instead of overflowing off-screen */
+  .hero-chips { flex-wrap: wrap; flex-basis: 100%; gap: 12px; }
+  .hchip { flex: 1 1 calc(50% - 6px); min-width: 0; padding: 14px 16px; }
+  .hchip .hv { font-size: 18px; }
+  /* aggregation-lens scope bar: let the toggle + note breathe */
+  .scope-bar { padding: 14px 16px; }
+  .scope-left { flex-wrap: wrap; gap: 10px; }
+  .seg-lens { width: 100%; }
+  .seg-lens .seg-btn { flex: 1; justify-content: center; }
+}
+@media (max-width: 560px) {
+  .chartcard { padding: 16px 16px 12px; }
+  .chartcard .chd { flex-direction: column; align-items: stretch; gap: 10px; }
+  /* device-page graph-details cards */
+  .gd-now { width: 100%; justify-content: flex-start; gap: 32px; }
+  .gd-now span { align-items: flex-start; text-align: left; }
+  .gd-now b { font-size: 20px; }
+  /* RTT / packet-loss cards (.now) */
+  .chartcard .now { text-align: left; }
+  .gd-head { gap: 12px; }
+  .gd-head .seg { width: 100%; }
+  .gd-head .seg .seg-btn { flex: 1; }
+}
